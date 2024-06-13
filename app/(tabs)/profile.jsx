@@ -1,4 +1,5 @@
-import { Text, View, ScrollView, SafeAreaView } from "react-native";
+import { Text, View, ScrollView } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import React from "react";
 import CustomButton from "../../components/CustomButton";
 import { logout } from "../../lib/appwrite";
