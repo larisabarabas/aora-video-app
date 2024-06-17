@@ -14,45 +14,30 @@ import Trending from "../../components/Trending";
 import EmptyState from "../../components/EmptyState";
 import CustomButton from "../../components/CustomButton";
 import { router } from "expo-router";
-import { getAllPosts } from "../../lib/appwrite";
+import { getAllPosts, getLatestPosts } from "../../lib/appwrite";
+import useAppwrite from "../../lib/useAppwrite";
+import VideoCard from "../../components/VideoCard";
 
 const Home = () => {
   const [refreshing, setRefreshing] = useState(false);
-  const [data, setData] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const fetchData = async () => {
-    setIsLoading(true);
-    try {
-      const response = await getAllPosts();
-      setData(response);
-    } catch (error) {
-      Alert.alert("Error", error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  console.log(data);
+  const { data: posts, refetch } = useAppwrite(getAllPosts);
+  const { data: latestPosts } = useAppwrite(getLatestPosts);
+  // console.log("POSTS:", posts[0].creator);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    // recall videos to check if new videos appear
+    await refetch();
     setRefreshing(false);
   };
+
   return (
     <SafeAreaView className="bg-primary h-full">
       <FlatList
-        data={[{ id: 1 }, { id: 2 }, { id: 3 }]}
+        data={posts}
         // data={[]}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.$id}
         renderItem={({ item }) => (
-          <Text className="text-3xl text-white" key={item.id}>
-            {item.id}
-          </Text>
+          <VideoCard video={item} creator={item.creator} />
         )}
         ListHeaderComponent={() => (
           <View className="my-6 px-4 space-y-6">
@@ -80,7 +65,7 @@ const Home = () => {
               <Text className="text-gray-100 text-lg font-pregular ">
                 Trending videos
               </Text>
-              <Trending posts={[{ id: 1 }, { id: 2 }] ?? []} />
+              <Trending posts={latestPosts ?? []} />
             </View>
           </View>
         )}
