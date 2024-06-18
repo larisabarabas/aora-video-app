@@ -13,8 +13,10 @@ import VideoCard from "../../components/VideoCard";
 import { images } from "../../constants";
 import { getAllPosts, getLatestPosts } from "../../lib/appwrite";
 import useAppwrite from "../../lib/useAppwrite";
+import { useGlobalContext } from "../../context/GlobalProvider";
 
 const Home = () => {
+  const { user, setUser, setIsLoggedIn } = useGlobalContext();
   const [refreshing, setRefreshing] = useState(false);
   const { data: posts, refetch } = useAppwrite(getAllPosts);
   const { data: latestPosts } = useAppwrite(getLatestPosts);
@@ -39,11 +41,10 @@ const Home = () => {
             <View className="justify-between items-start flex-row mb-6">
               <View>
                 <Text className="text-sm font-pmedium text-gray-100">
-                  {" "}
-                  Welcome back
+                  Welcome back,
                 </Text>
                 <Text className="text-2xl text-white font-psemibold">
-                  janedoe
+                  {user?.username}
                 </Text>
               </View>
               <View>

@@ -5,7 +5,7 @@ import { images } from "../../constants";
 import FormField from "../../components/FormField";
 import CustomButton from "../../components/CustomButton";
 import { Link, router } from "expo-router";
-import { createUser } from "../../lib/appwrite";
+import { createUser, getCurrentUser } from "../../lib/appwrite";
 import { useGlobalContext } from "../../context/GlobalProvider";
 
 const Signup = () => {
@@ -25,8 +25,9 @@ const Signup = () => {
     setisSubmitting(true);
 
     try {
-      const result = await createUser(form.email, form.password, form.username);
+      await createUser(form.email, form.password, form.username);
       // set it to global state with context
+      const result = await getCurrentUser();
       setUser(result);
       setIsLoggedIn(true);
 
