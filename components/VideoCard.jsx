@@ -1,13 +1,18 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Text, Image, TouchableOpacity, Alert } from "react-native";
 import React, { useState } from "react";
 import { icons } from "../constants";
 import { Video, ResizeMode } from "expo-av";
+import { useGlobalContext } from "../context/GlobalProvider";
 
 const VideoCard = ({
-  video: { title, thumbnail, video },
+  video: { title, thumbnail, video, saved_by },
   creator: { username, avatar },
+  onDeletePost,
+  onSavePost,
 }) => {
+  const { user } = useGlobalContext();
   const [play, setPlay] = useState(false);
+  const [isDropdownOpened, setIsDropdownOpened] = useState(false);
 
   return (
     <View className="flex flex-col items-center px-4 mb-14">
@@ -37,8 +42,66 @@ const VideoCard = ({
           </View>
         </View>
 
-        <View className="pt-2">
-          <Image source={icons.menu} className="w-5 h-5" resizeMode="contain" />
+        {/* This can be moved to a separate component and it can also be refactored to use FlatList and to receive multiple items */}
+        <View className="flex flex-col justify-end">
+          <TouchableOpacity
+            activeOpacity={0.7}
+            className="pt-2"
+            onPress={() => setIsDropdownOpened(!isDropdownOpened)}
+          >
+            <Image
+              source={icons.menu}
+              className="w-5 h-5"
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
+          {isDropdownOpened && (
+            <View className="bg-black-100 px-6 py-4 my-2 rounded-xl w-[130px] absolute z-50 right-0 top-9">
+              {user.username !== username &&
+                saved_by.includes(user.$id) === false && (
+                  <TouchableOpacity
+                    className="flex flex-row gap-2 justify-start items-center"
+                    onPress={() => {
+                      Alert.alert(
+                        "Success",
+                        "This post was saved to Bookmarks"
+                      );
+                      setIsDropdownOpened(false);
+                      onSavePost();
+                    }}
+                  >
+                    <Image
+                      source={icons.bookmark}
+                      resizeMode="contain"
+                      className="w-3 h-3"
+                    />
+                    <Text className="text-white font-pmedium text-sm">
+                      Save
+                    </Text>
+                  </TouchableOpacity>
+                )}
+
+              {user.username === username && (
+                <TouchableOpacity
+                  className="flex flex-row gap-2 justify-start items-center"
+                  onPress={() => {
+                    Alert.alert("Success", "This post got deleted");
+                    setIsDropdownOpened(false);
+                    onDeletePost();
+                  }}
+                >
+                  <Image
+                    source={icons.deleteItem}
+                    resizeMode="contain"
+                    className="w-3 h-3"
+                  />
+                  <Text className="text-white font-pmedium text-sm">
+                    Delete
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
         </View>
       </View>
 

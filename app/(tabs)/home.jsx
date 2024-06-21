@@ -11,12 +11,17 @@ import CustomButton from "../../components/CustomButton";
 import VideoCard from "../../components/VideoCard";
 
 import { images } from "../../constants";
-import { getAllPosts, getLatestPosts } from "../../lib/appwrite";
+import {
+  deletePost,
+  getAllPosts,
+  getLatestPosts,
+  savePost,
+} from "../../lib/appwrite";
 import useAppwrite from "../../lib/useAppwrite";
 import { useGlobalContext } from "../../context/GlobalProvider";
 
 const Home = () => {
-  const { user, setUser, setIsLoggedIn } = useGlobalContext();
+  const { user } = useGlobalContext();
   const [refreshing, setRefreshing] = useState(false);
   const { data: posts, refetch } = useAppwrite(getAllPosts);
   const { data: latestPosts } = useAppwrite(getLatestPosts);
@@ -33,7 +38,17 @@ const Home = () => {
         data={posts}
         keyExtractor={(item) => item.$id}
         renderItem={({ item }) => (
-          <VideoCard video={item} creator={item.creator} />
+          <VideoCard
+            video={item}
+            creator={item.creator}
+            onDeletePost={() => {
+              deletePost(item.$id);
+              refetch();
+            }}
+            onSavePost={() => {
+              savePost(item.$id, { saved_by: [user.$id] });
+            }}
+          />
         )}
         ListHeaderComponent={() => (
           <View className="my-6 px-4 space-y-6">
